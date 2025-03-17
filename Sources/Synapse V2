@@ -1,0 +1,994 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Security;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using CloudyApi;
+namespace Synapse_ui.v2
+{
+    public partial class SynapseReborn : Form
+    {
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        public SynapseReborn()
+        {
+            InitializeComponent();
+        }
+
+
+        private void Form2_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)  
+            {
+                ReleaseCapture(); 
+                SendMessage(Handle, 0xA1, 0x2, 0); 
+            }
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+            this.MouseDown += Form2_MouseDown;
+            TopMost = true;
+            var monacoPath = Path.Combine(Directory.GetCurrentDirectory(), "Monaco", "AceEditor.html");
+            if (File.Exists(monacoPath))
+            {
+                webBrowser1.Navigate(new Uri($"file:///{monacoPath.Replace("\\", "/")}"));
+            }
+            else
+            {
+                MessageBox.Show($"Monaco editor file not found:\n{monacoPath}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            LoadSavedScripts();
+            if (IsKeyActive())
+            {
+                BroadcastActive();
+                label10.Text = "Active";
+            } 
+            else
+            {
+                label10.Text = "Not Active";
+            }
+            webBrowser1.Size = new Size(538, 280);
+            label14.Text = "Ui Started - " + DateTime.Now.ToString("hh:mm:ss tt");
+            CreateFirstTab();
+        }
+
+        private async void InjectScan()
+        {
+
+            label3.Text = "Checking";
+            await Task.Delay(500);
+            if (IsRobloxOpen())
+            {
+                label3.Text = "Injecting";
+                Api.inject();
+                await Task.Delay(600);
+                label3.Text = "Ready!";
+                await Task.Delay(700);
+                label3.Text = "Injected";
+                label14.Text = "Attached - " + DateTime.Now.ToString("HH:mm:ss tt");
+                await MonitorRoblox();
+            }
+            else
+            {
+                RobloxnotOpen();
+
+            }
+
+        }
+        public static bool IsRobloxOpen()
+        {
+            return Process.GetProcessesByName("RobloxPlayerBeta").Length > 0;
+        }
+        private async Task MonitorRoblox()
+        {
+            await Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(50);
+
+                    if (!IsRobloxOpen())
+                    {
+                        label3.Text = "Not Injected";
+                        break;
+                    }
+                }
+            });
+        }
+
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to close Synapse? Make sure to save your work!", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                foreach (var process in Process.GetProcessesByName("Synapse ui.v2"))
+                {
+                    process.Kill();
+                    this.Close();
+                }
+            }
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+
+        }
+
+        private void guna2Button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Lua Script (*.lua)|*.lua|All Files (*.*)|*.*",
+                    Title = "Open Lua Script",
+                    InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+                };
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string script = File.ReadAllText(openFileDialog.FileName);
+                    Api.execute(script);
+                    Executefile();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("An error occurred while executing the script.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        private static void BroadcastNotification()
+        {
+            try
+            {
+                string content = "Key not Redeemed, Enter key in settings from discord server.";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+
+        private static void Save()
+        {
+            try
+            {
+                string content = "Script Saved!";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+        private static void LoadScipt()
+        {
+            try
+            {
+                string content = "Script Loaded!";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+        private static void Executefile()
+        {
+            try
+            {
+                string content = "Script Executed!";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+        private static void RobloxnotOpen()
+        {
+            try
+            {
+                string content = "Roblox isnt open! Run roblox player beta.";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+        private void guna2Button6_Click(object sender, EventArgs e)
+        {
+            if (IsKeyActive())
+            {
+                if (IsRobloxOpen())
+                {
+                    if (CloudyApi.Api.IsInjected())
+                    {
+
+                        MessageBox.Show("Synapse V2 - Already Injected");
+                    }
+                    else
+                    {
+                        InjectScan();
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("Synapse V2 - Roblox is not Open!");
+                }
+            }
+            else
+            {
+                BroadcastNotification();
+            }
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HtmlDocument document = webBrowser1.Document;
+                string scriptName = "GetText";
+                object[] args = new string[0];
+                object obj = document.InvokeScript(scriptName, args);
+                string script = obj.ToString();
+
+
+
+
+                CloudyApi.Api.execute(@"hookfunction(identifyexecutor, function() return 'Synapse Reborn', '" + "V2.0.0 | Cloudy Executor Api" + "'\nend)\n" + script);
+                if (Api.IsInjected())
+                {
+                    label14.Text = "Executed Successfully - " + DateTime.Now.ToString("hh:mm:ss tt");
+                }
+                else
+                {
+                    label14.Text = "Execution Failed. Isnt injected? - " + DateTime.Now.ToString("hh:mm:ss tt");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void guna2Button4_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var document = webBrowser1.Document;
+                var obj = document?.InvokeScript("GetText", new string[0]);
+                var script = obj?.ToString() ?? "";
+
+                var saveDirectory = Path.Combine(Application.StartupPath, "scripts");
+                if (!Directory.Exists(saveDirectory))
+                    Directory.CreateDirectory(saveDirectory);
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Lua Script (*.lua)|*.lua",
+                    InitialDirectory = saveDirectory,
+                    Title = "Save Lua Script"
+                };
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(saveFileDialog.FileName, script);
+                    Save();
+                    LoadSavedScripts();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
+
+        private void guna2Button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Lua Script (*.lua)|*.lua|All Files (*.*)|*.*",
+                    Title = "Open Lua Script"
+                };
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    var script = File.ReadAllText(openFileDialog.FileName);
+                    var document = webBrowser1.Document;
+                    document?.InvokeScript("SetText", new object[] { script });
+                    LoadScipt();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+
+        }
+        private static void WIP()
+        {
+            try
+            {
+                string content = "This feature isnt finished, WIP. Will come out with Internal injection.";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+
+
+        private static void BroadcastActive()
+        {
+            try
+            {
+                string content = "Loaded User Key";
+
+                NotifyIcon notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Information,
+                    Visible = true,
+                    BalloonTipTitle = "Synapse Reborn",
+                    BalloonTipText = content
+                };
+
+                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error displaying broadcast notification: {ex.Message}");
+            }
+        }
+        private void LoadSavedScripts()
+        {
+            panel8.Controls.Clear();
+            panel8.AutoScroll = true;
+
+            var saveDirectory = Path.Combine(Application.StartupPath, "scripts");
+            if (!Directory.Exists(saveDirectory))
+                Directory.CreateDirectory(saveDirectory);
+
+            var files = Directory.GetFiles(saveDirectory, "*.lua");
+            var yOffset = 4;
+
+            foreach (var file in files)
+            {
+                var fileButton = new Button
+                {
+                    Text = Path.GetFileName(file),
+                    Width = panel2.Width + 6,
+                    Height = 30,
+                    Location = new Point(-2, yOffset),
+                    BackColor = Color.FromArgb(21, 21, 21),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 8, FontStyle.Regular),
+                    FlatStyle = FlatStyle.Flat,
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
+
+                fileButton.FlatAppearance.BorderColor = Color.FromArgb(21, 21, 21);
+                fileButton.FlatAppearance.BorderSize = 2;
+
+                fileButton.MouseEnter += (s, e) =>
+                {
+                    fileButton.BackColor = Color.FromArgb(21, 21, 21);
+                    fileButton.FlatAppearance.BorderColor = Color.FromArgb(21, 21, 21);
+                };
+
+                fileButton.MouseLeave += (s, e) =>
+                {
+                    fileButton.BackColor = Color.FromArgb(21, 21, 21);
+                    fileButton.FlatAppearance.BorderColor = Color.FromArgb(21, 21, 21);
+                };
+
+                fileButton.Click += (s, e) => OpenScript(file);
+
+                panel8.Controls.Add(fileButton);
+                yOffset += 30;
+            }
+        }
+        private void OpenScript(string filePath)
+        {
+            try
+            {
+                var script = File.ReadAllText(filePath);
+                var document = webBrowser1.Document;
+
+                if (document != null)
+                {
+                    document.InvokeScript("SetText", new object[] { script });
+                }
+                else
+                {
+                    MessageBox.Show("Error: Web editor is not loaded.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening file: {ex.Message}");
+            }
+        }
+
+        private void panel8_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void guna2Button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HtmlDocument document = webBrowser1.Document;
+                string scriptName = "SetText";
+                object[] args = new object[] { "" };
+                document.InvokeScript(scriptName, args);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+
+        private string Autoinjectpath = "AutoInject.dat";
+
+        private void guna2Button7_Click(object sender, EventArgs e)
+        {
+            WIP(); 
+        }
+
+
+
+        
+
+
+private void guna2TextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2Button9_Click(object sender, EventArgs e)
+        {
+            string correctKey = "SynapseV2!";
+            string configFilePath = Path.Combine(Application.StartupPath, "config.dat");
+
+            if (guna2TextBox1.Text == correctKey)
+            {
+                MessageBox.Show("Key is valid! Access granted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                SaveConfig(configFilePath, "Active");
+            }
+            else
+            {
+                MessageBox.Show("Invalid key! Try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SaveConfig(string filePath, string content)
+        {
+            try
+            {
+                string encodedContent = Convert.ToBase64String(Encoding.UTF8.GetBytes(content));
+                File.WriteAllText(filePath, encodedContent);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving config: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool IsKeyActive()
+        {
+            string configFilePath = Path.Combine(Application.StartupPath, "config.dat");
+
+            if (File.Exists(configFilePath))
+            {
+                try
+                {
+                    string encodedContent = File.ReadAllText(configFilePath);
+                    string decodedContent = Encoding.UTF8.GetString(Convert.FromBase64String(encodedContent));
+
+                    return decodedContent == "Active";
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        private void pictureBox7_Click(object sender, EventArgs e)
+        {
+            panel11.Visible = false;
+        }
+
+        private void pictureBox6_Click(object sender, EventArgs e)
+        {
+            panel11.Visible = true;
+        }
+
+        private void guna2Button8_Click(object sender, EventArgs e)
+        {
+            string autoExecPath = Path.Combine(Application.StartupPath, "autoexec");
+
+            if (Directory.Exists(autoExecPath))
+            {
+                Process.Start(new ProcessStartInfo(autoExecPath) { UseShellExecute = true });
+            }
+            else
+            {
+                MessageBox.Show("autoexec folder not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
+        }
+        private string configFilePath = Path.Combine(Application.StartupPath, "workspace", "console.dat");
+
+        private void guna2Button10_Click(object sender, EventArgs e)
+        {
+            if (panel14.Visible == false)
+            {
+                webBrowser1.Size = new Size(538, 195);
+                panel14.Visible = true;
+                guna2Button10.Text = "Disable";
+                ConsoleSaveConfig(true);
+            }
+            else
+            {
+                webBrowser1.Size = new Size(538, 280);
+                panel14.Visible = false;
+                guna2Button10.Text = "Enable";
+                ConsoleSaveConfig(false);
+            }
+        }
+
+        private void ConsoleSaveConfig(bool isEnabled)
+        {
+            if (!Directory.Exists(Path.Combine(Application.StartupPath, "workspace")))
+            {
+                Directory.CreateDirectory(Path.Combine(Application.StartupPath, "workspace"));
+            }
+
+            string content = $"{isEnabled},{webBrowser1.Size.Width},{webBrowser1.Size.Height}";
+            File.WriteAllText(configFilePath, content);
+        }
+
+        private void ConsoleLoadConfig()
+        {
+            if (File.Exists(configFilePath))
+            {
+                string content = File.ReadAllText(configFilePath);
+                string[] configValues = content.Split(',');
+
+                if (configValues.Length >= 3)
+                {
+                    bool isEnabled = bool.Parse(configValues[0]);
+                    int width = int.Parse(configValues[1]);
+                    int height = int.Parse(configValues[2]);
+
+                    webBrowser1.Size = new Size(width, height);
+                    panel14.Visible = isEnabled;
+                    guna2Button10.Text = isEnabled ? "Disable" : "Enable";
+                }
+            }
+        }
+
+        private void pictureBox8_Click(object sender, EventArgs e)
+        {
+            panel15.Visible = false;
+        }
+
+        private void pictureBox5_Click(object sender, EventArgs e)
+        {
+            panel15.Visible = true;
+        }
+
+        private void guna2Button11_Click(object sender, EventArgs e) // iy
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source\", true))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button13_Click(object sender, EventArgs e) // dex
+        {
+            string script = "loadstring(game:HttpGet(\"https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button12_Click(object sender, EventArgs e) // esp thing
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button14_Click(object sender, EventArgs e) // bird hub
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button18_Click(object sender, EventArgs e) // mm2
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void guna2Button21_Click(object sender, EventArgs e) // block fruits
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button20_Click(object sender, EventArgs e) // blade ball
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ExploitDevsOffical/Synapse-Scripts/refs/heads/main/Scripts/Blade%20Ball\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button23_Click(object sender, EventArgs e) // arsenal
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ExploitDevsOffical/Synapse-Scripts/refs/heads/main/Scripts/Arsenal\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void guna2Button24_Click(object sender, EventArgs e) // forksaken
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/SilkScripts/AppleStuff/refs/heads/main/AppleFSKV2\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button25_Click(object sender, EventArgs e) // jujutsu shenan
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ExploitDevsOffical/Synapse-Scripts/refs/heads/main/Scripts/Tsb.JJS\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button17_Click(object sender, EventArgs e) // fish
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void guna2Button15_Click(object sender, EventArgs e) // tsb
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ExploitDevsOffical/Synapse-Scripts/refs/heads/main/Scripts/Tsb.JJS\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button26_Click(object sender, EventArgs e) // funky friday
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ExploitDevsOffical/Synapse-Scripts/refs/heads/main/Scripts/Funky%20Friday\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button16_Click(object sender, EventArgs e) // rivals
+        {
+            string script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/blackowl1231/ZYPHERION/refs/heads/main/Games/ZYPHERION%20Rivals%20Beta.lua\", false))()";
+
+            CloudyApi.Api.execute(script);
+        }
+
+        private void guna2Button19_Click(object sender, EventArgs e) //flee facility
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void guna2Button27_Click(object sender, EventArgs e) // prison life
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/devguy100/PrizzLife/main/Source/release_v0.8.1.lua\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void guna2Button22_Click(object sender, EventArgs e) // doors
+        {
+            string Script = "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/DarkDoorsKing/Doors/main/Main\", false))()";
+
+            CloudyApi.Api.execute(Script);
+        }
+
+        private void panel9_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel16_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            if (buttonCount >= maxTabs)
+            {
+                MessageBox.Show("The maximum amount of tabs is 6.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            buttonCount++;
+
+            Button newButton = new Button
+            {
+                Text = $"Script {buttonCount}.lua",
+                Size = new Size(85, 25),
+                BackColor = Color.FromArgb(30,30,30),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9, FontStyle.Regular),
+                FlatAppearance = { BorderColor = Color.FromArgb(21, 21, 21) },
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+
+            tabText[newButton] = "";
+
+            panel16.Controls.Add(newButton);
+            newButton.Click += (s, ev) => SwitchTab(newButton);
+
+            newButton.Location = new Point((buttonCount - 1) * buttonSpacing, 5);
+            button16.Location = new Point((buttonCount) * buttonSpacing + 5, 5);
+
+            if ((buttonCount * buttonSpacing) > panel8.Width)
+            {
+
+            }
+
+            if (buttonCount == 1)
+            {
+                SwitchTab(newButton);
+            }
+        }
+
+
+        private void CreateFirstTab()
+        {
+            if (buttonCount == 0)
+            {
+                buttonCount++;
+
+                Button firstTabButton = new Button
+                {
+                    Text = "Script 1.lua",
+                    Size = new Size(85, 25),
+                    BackColor = Color.FromArgb(30,30,30),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat,
+                    Font = new Font("Segoe UI", 9, FontStyle.Regular),
+                    FlatAppearance = { BorderColor = Color.FromArgb(21, 21, 21) },
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
+
+                tabText[firstTabButton] = "";
+
+                panel16.Controls.Add(firstTabButton);
+                firstTabButton.Click += (s, ev) => SwitchTab(firstTabButton);
+
+
+                firstTabButton.Location = new Point(0, 5);
+
+                button16.Location = new Point((buttonCount) * buttonSpacing + 5, 5);
+
+
+                SwitchTab(firstTabButton);
+            }
+        }
+
+
+
+        private int buttonCount = 0;
+        private int buttonSpacing = 86;
+        private Dictionary<Button, string> tabText = new Dictionary<Button, string>();
+        private Button activeTab = null;
+
+        private const int maxTabs = 6;
+
+        private void SwitchTab(Button tabButton)
+        {
+            if (activeTab == tabButton)
+                return;
+
+            if (activeTab != null)
+            {
+                tabText[activeTab] = GetEditorText();
+                activeTab.BackColor = Color.FromArgb(30,30,30);
+            }
+
+            activeTab = tabButton;
+            activeTab.BackColor = Color.FromArgb(60,60,60);
+
+            if (tabText.ContainsKey(tabButton))
+            {
+                LoadEditorText(tabText[tabButton]);
+            }
+            else
+            {
+                LoadEditorText("");
+            }
+        }
+
+        private string GetEditorText()
+        {
+            try
+            {
+                if (webBrowser1.Document == null) return "";
+
+                object obj = webBrowser1.Document.InvokeScript("GetText");
+                return obj?.ToString() ?? "";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error Fetching Info: " + ex.Message);
+                return "";
+            }
+        }
+
+        private void LoadEditorText(string text)
+        {
+            try
+            {
+                if (webBrowser1.Document != null)
+                {
+                    webBrowser1.Document.InvokeScript("SetText", new object[] { text });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error Fetching Info: " + ex.Message);
+            }
+        }
+
+        private void guna2Button28_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HtmlDocument document = webBrowser1.Document;
+                string scriptName = "GetText";
+                object[] args = new string[0];
+                object obj = document.InvokeScript(scriptName, args);
+                string script = obj.ToString();
+
+
+
+
+                CloudyApi.Api.execute(@"hookfunction(identifyexecutor, function() return 'Synapse Reborn', '" + "V2.0.0 | Cloudy Executor Api" + "'\nend)\n" + script);
+                if (Api.IsInjected())
+                {
+                    label14.Text = "Executed Successfully - " + DateTime.Now.ToString("hh:mm:ss tt");
+                }
+                else
+                {
+                    label14.Text = "Execution Failed. Isnt injected? - " + DateTime.Now.ToString("hh:mm:ss tt");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+    }
+}
