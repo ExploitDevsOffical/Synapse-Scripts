@@ -1,0 +1,180 @@
+--[=[
+ d888b  db    db d888888b      .d888b.      db      db    db  .d8b.  
+88' Y8b 88    88   `88'        VP  `8D      88      88    88 d8' `8b 
+88      88    88    88            odD'      88      88    88 88ooo88 
+88  ooo 88    88    88          .88'        88      88    88 88~~~88 
+88. ~8~ 88b  d88   .88.        j88.         88booo. 88b  d88 88   88    @uniquadev
+ Y888P  ~Y8888P' Y888888P      888888D      Y88888P ~Y8888P' YP   YP  CONVERTER 
+]=]
+
+-- Instances: 9 | Scripts: 3 | Modules: 0
+local G2L = {};
+
+-- StarterGui.ScreenGui
+G2L["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"));
+G2L["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling;
+
+-- StarterGui.ScreenGui.Frame
+G2L["2"] = Instance.new("Frame", G2L["1"]);
+G2L["2"]["BorderSizePixel"] = 0;
+G2L["2"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
+G2L["2"]["Size"] = UDim2.new(0, 244, 0, 76);
+G2L["2"]["Position"] = UDim2.new(0.03525, 0, 0.04146, 0);
+G2L["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["2"]["BackgroundTransparency"] = 0.2;
+
+-- StarterGui.ScreenGui.Frame.UICorner
+G2L["3"] = Instance.new("UICorner", G2L["2"]);
+
+
+-- StarterGui.ScreenGui.Frame.TextLabel
+G2L["4"] = Instance.new("TextLabel", G2L["2"]);
+G2L["4"]["BorderSizePixel"] = 0;
+G2L["4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["4"]["TextSize"] = 14;
+G2L["4"]["FontFace"] = Font.new([[rbxasset://fonts/families/Inconsolata.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["4"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["4"]["BackgroundTransparency"] = 1;
+G2L["4"]["Size"] = UDim2.new(0, 200, 0, 50);
+G2L["4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["4"]["Text"] = [[Elemental | Internal]];
+G2L["4"]["Position"] = UDim2.new(-0.06077, 0, -0.08742, 0);
+
+-- StarterGui.ScreenGui.Frame.TextLabel
+G2L["5"] = Instance.new("TextLabel", G2L["2"]);
+G2L["5"]["BorderSizePixel"] = 0;
+G2L["5"]["TextXAlignment"] = Enum.TextXAlignment.Left;
+G2L["5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["5"]["TextSize"] = 14;
+G2L["5"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+G2L["5"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["5"]["BackgroundTransparency"] = 1;
+G2L["5"]["Size"] = UDim2.new(0, 200, 0, 50);
+G2L["5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["5"]["Text"] = [[Fps:]];
+G2L["5"]["Position"] = UDim2.new(0.05796, 0, 0.16389, 0);
+
+-- StarterGui.ScreenGui.Frame.TextLabel.LocalScript
+G2L["6"] = Instance.new("LocalScript", G2L["5"]);
+
+
+-- StarterGui.ScreenGui.Frame.TextLabel
+G2L["7"] = Instance.new("TextLabel", G2L["2"]);
+G2L["7"]["BorderSizePixel"] = 0;
+G2L["7"]["TextXAlignment"] = Enum.TextXAlignment.Left;
+G2L["7"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["7"]["TextSize"] = 14;
+G2L["7"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+G2L["7"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["7"]["BackgroundTransparency"] = 1;
+G2L["7"]["Size"] = UDim2.new(0, 200, 0, 50);
+G2L["7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["7"]["Text"] = [[Ping:]];
+G2L["7"]["Position"] = UDim2.new(0.05554, 0, 0.33083, 0);
+
+-- StarterGui.ScreenGui.Frame.TextLabel.LocalScript
+G2L["8"] = Instance.new("LocalScript", G2L["7"]);
+
+
+-- StarterGui.ScreenGui.Frame.LocalScript
+G2L["9"] = Instance.new("LocalScript", G2L["2"]);
+
+
+-- StarterGui.ScreenGui.Frame.TextLabel.LocalScript
+local function C_6()
+local script = G2L["6"];
+	local textLabel = script.Parent
+	local runService = game:GetService("RunService")
+	
+	runService.RenderStepped:Connect(function()
+		local fps = math.floor(1 / runService.RenderStepped:Wait())
+		local keyword = ""
+		local color = Color3.fromRGB(255, 255, 255) -- Default white
+	
+		if fps <= 55 then
+			keyword = "Bad"
+			color = Color3.fromRGB(255, 0, 0) -- Red
+		elseif fps >= 56 and fps <= 80 then
+			keyword = "Average"
+			color = Color3.fromRGB(255, 255, 0) -- Yellow
+		elseif fps >= 81 and fps <= 150 then
+			keyword = "Good"
+			color = Color3.fromRGB(0, 255, 0) -- Green
+		else
+			keyword = "Great"
+			color = Color3.fromRGB(0, 255, 255) -- Cyan
+		end
+	
+		textLabel.Text = "FPS: " .. fps .. " (" .. keyword .. ")"
+		textLabel.TextColor3 = color
+	end)
+	
+end;
+task.spawn(C_6);
+-- StarterGui.ScreenGui.Frame.TextLabel.LocalScript
+local function C_8()
+local script = G2L["8"];
+	local textLabel = script.Parent
+	local runService = game:GetService("RunService")
+	local players = game:GetService("Players")
+	local localPlayer = players.LocalPlayer
+	
+	runService.RenderStepped:Connect(function()
+		local ping = math.floor(localPlayer:GetNetworkPing() * 10000) -- Convert to milliseconds
+		local keyword = ""
+		local color = Color3.fromRGB(255, 255, 255) -- Default white
+	
+		if ping <= 50 then
+			keyword = "Excellent"
+			color = Color3.fromRGB(0, 255, 0) -- Green
+		elseif ping > 50 and ping <= 100 then
+			keyword = "Good"
+			color = Color3.fromRGB(255, 255, 0) -- Yellow
+		elseif ping > 100 and ping <= 200 then
+			keyword = "Average"
+			color = Color3.fromRGB(255, 165, 0) -- Orange
+		else
+			keyword = "Bad"
+			color = Color3.fromRGB(255, 0, 0) -- Red
+		end
+	
+		textLabel.Text = "Ping: " .. ping .. "ms (" .. keyword .. ")"
+		textLabel.TextColor3 = color
+	end)
+	
+end;
+task.spawn(C_8);
+-- StarterGui.ScreenGui.Frame.LocalScript
+local function C_9()
+local script = G2L["9"];
+	local textLabel = script.Parent
+	local UserInputService = game:GetService("UserInputService")
+	
+	textLabel.Draggable = true
+	textLabel.Active = true
+	
+	local isEnabled = false  -- Track whether it's enabled or not
+	
+	-- Function to toggle Active and Draggable properties
+	local function toggleTextLabel()
+		if isEnabled then
+			textLabel.Visible = false
+		else
+			textLabel.Visible = true
+		end
+		isEnabled = not isEnabled  -- Toggle the state
+	end
+	
+	-- Listen for when the Ctrl key is pressed
+	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+		if not gameProcessedEvent then  -- Ignore if the input is processed by the game
+			if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+				toggleTextLabel()
+			end
+		end
+	end)
+	
+end;
+task.spawn(C_9);
+
+return G2L["1"], require;
